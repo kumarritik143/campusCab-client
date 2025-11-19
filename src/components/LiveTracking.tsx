@@ -88,7 +88,11 @@ const LiveTracking: React.FC<Props> = ({ pickup, destination }) => {
     if (typeof window !== "undefined" && navigator.geolocation) {
       const throttledUpdate = throttle((lat: number, lng: number) => {
         setCurrentPosition({ lat, lng });
+        setError(null); // Clear error on successful update
       }, 3000);
+
+      // Default fallback location (can be set to your app's default city)
+      const defaultLocation: LatLng = { lat: 28.6139, lng: 77.2090 }; // Delhi, India
 
       const watchId = navigator.geolocation.watchPosition(
         (position) => {
@@ -97,16 +101,46 @@ const LiveTracking: React.FC<Props> = ({ pickup, destination }) => {
         },
         (err) => {
           console.error("Geolocation error:", err);
-          setError("Unable to fetch current location.");
+          let errorMessage = "Unable to fetch current location.";
+          
+          // Provide specific error messages based on error code
+          switch (err.code) {
+            case err.PERMISSION_DENIED:
+              errorMessage = "Location access denied. Please enable location permissions.";
+              break;
+            case err.POSITION_UNAVAILABLE:
+              errorMessage = "Location information unavailable. Using default location.";
+              // Use default location as fallback
+              setCurrentPosition(defaultLocation);
+              break;
+            case err.TIMEOUT:
+              errorMessage = "Location request timed out. Using default location.";
+              setCurrentPosition(defaultLocation);
+              break;
+            default:
+              errorMessage = "Location error occurred. Using default location.";
+              setCurrentPosition(defaultLocation);
+              break;
+          }
+          
+          setError(errorMessage);
         },
-        { enableHighAccuracy: true }
+        { 
+          enableHighAccuracy: false, // Changed to false for better compatibility
+          timeout: 10000, // 10 second timeout
+          maximumAge: 60000 // Accept cached position up to 1 minute old
+        }
       );
       return () => {
         navigator.geolocation.clearWatch(watchId);
         throttledUpdate.cancel();
       };
+    } else {
+      // Fallback if geolocation is not supported
+      const defaultLocation: LatLng = { lat: 28.6139, lng: 77.2090 };
+      setCurrentPosition(defaultLocation);
+      setError("Geolocation not supported. Using default location.");
     }
-    setError("Geolocation not supported.");
   }, []);
 
   

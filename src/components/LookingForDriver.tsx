@@ -2,7 +2,6 @@
 
 import React from "react";
 type VehicleType = "auto";
-import Image from "next/image";
 
 type Props = {
   createRide: () => Promise<void>;
@@ -33,10 +32,10 @@ const LookingForDriver: React.FC<Props> = ({
       <h3 className="text-2xl font-semibold mb-5">Looking for a Driver</h3>
 
       <div className="flex gap-2 justify-between flex-col items-center">
-        <Image
+        <img
           width={160} 
           height={160}
-          className="h-20"
+          className="h-20 w-auto"
           src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_368,w_552/v1648431773/assets/1d/db8c56-0204-4ce4-81ce-56a11a07fe98/original/Uber_Auto_558x372_pixels_Desktop.png"
           alt="vehicle"
         />
