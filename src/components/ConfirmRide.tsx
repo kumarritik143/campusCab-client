@@ -77,6 +77,7 @@ const ConfirmRide: React.FC<Props> = ({
           alt="vehicle"
           width={160}
           height={180}
+          unoptimized={true}
         />
 
         <div className="w-full mt-5">
