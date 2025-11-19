@@ -16,6 +16,10 @@ import VehiclePanel from "@/components/VehiclePanel";
 import RideSharingWindow from "@/components/RideSharingWindow";
 import { SocketContext } from "@/context/SocketContext";
 import { UserDataContext } from "@/context/UserContext";
+import {
+  SharedTrip,
+  RideNotificationPayload,
+} from "@/types/rideSharing";
 
 const LiveTracking = dynamic(() => import("@/components/LiveTracking"), {
   ssr: false,
@@ -61,7 +65,7 @@ const Home: React.FC = () => {
   // State for ride pooling
   const [passengerCount, setPassengerCount] = useState(1);
   const [showRideSharingWindow, setShowRideSharingWindow] = useState(false);
-  const [sharedTrip, setSharedTrip] = useState<any | null>(null);
+  const [sharedTrip, setSharedTrip] = useState<SharedTrip | null>(null);
   const [yourFare, setYourFare] = useState<number | null>(null);
 
   // Refs for GSAP animations
@@ -83,7 +87,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     if (!socket || !user) return;
 
-    const handleRideAccepted = (data: any) => {
+    const handleRideAccepted = (data: Ride) => {
       console.log("Ride Accepted Event Received:", data);
       setVehicleFound(false);
       setShowRideSharingWindow(false);
@@ -92,13 +96,13 @@ const Home: React.FC = () => {
       setRideConfirmed(true);
     };
 
-    const handleRideRejected = (data: any) => {
+    const handleRideRejected = (data: RideNotificationPayload) => {
       console.log("Ride Rejected Event Received:", data);
       setVehicleFound(false);
       alert("Driver has rejected your ride.");
     };
 
-    const handleSharedRideCreated = (data: { trip: any; yourFare: number }) => {
+    const handleSharedRideCreated = (data: { trip: SharedTrip; yourFare: number }) => {
       console.log("Shared ride created:", data);
       setSharedTrip(data.trip);
       setYourFare(data.yourFare);
@@ -106,20 +110,20 @@ const Home: React.FC = () => {
       setConfirmRidePanel(false);
     };
 
-    const handleSharedRideJoined = (data: { trip: any }) => {
+    const handleSharedRideJoined = (data: { trip: SharedTrip }) => {
       console.log("Successfully joined shared ride:", data);
       setSharedTrip(data.trip);
       setShowRideSharingWindow(true);
     };
 
-    const handleSharedRideUpdated = (data: { trip: any; yourFare: number }) => {
+    const handleSharedRideUpdated = (data: { trip: SharedTrip; yourFare: number }) => {
       console.log("Shared ride updated:", data);
       setSharedTrip(data.trip);
       setYourFare(data.yourFare);
     };
 
     // ✅ UPDATED: This function now correctly calls the driver
-    const handleSharedRideWindowClosed = (data: { trip: any }) => {
+    const handleSharedRideWindowClosed = (data: { trip: SharedTrip }) => {
       console.log("Matching window closed:", data);
       setSharedTrip(data.trip);
       
@@ -301,7 +305,7 @@ const Home: React.FC = () => {
       </div>
 
       <div ref={confirmRidePanelRef} className="fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12">
-        <ConfirmRide createRide={createRide} pickup={pickup} destination={destination} fare={fare} vehicleType={vehicleType as VehicleType} setConfirmRidePanel={setConfirmRidePanel} setShowRideSharingWindow={setShowRideSharingWindow} passengerCount={passengerCount} />
+        <ConfirmRide createRide={createRide} pickup={pickup} destination={destination} fare={fare} vehicleType={vehicleType as VehicleType} setConfirmRidePanel={setConfirmRidePanel} passengerCount={passengerCount} />
       </div>
 
       <div ref={vehicleFoundRef} className="fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12">
@@ -312,7 +316,6 @@ const Home: React.FC = () => {
         <RideSharingWindow
           trip={sharedTrip}
           yourFare={yourFare}
-          onCancel={() => { /* Optional: Implement cancellation logic */ }}
         />
       )}
 

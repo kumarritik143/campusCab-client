@@ -15,7 +15,6 @@ type Props = {
     auto?: number;
   };
   vehicleType: "auto";
-  setShowRideSharingWindow: (val: boolean) => void;
 };
 
 const ConfirmRide: React.FC<Props> = ({
@@ -26,7 +25,6 @@ const ConfirmRide: React.FC<Props> = ({
   destination,
   fare,
   vehicleType,
-  setShowRideSharingWindow,
 }) => {
 
   const contextSocket = useContext(SocketContext);
@@ -53,9 +51,7 @@ const ConfirmRide: React.FC<Props> = ({
       }
 
       // This will be controlled by socket events now, but we keep it for initial UI change
-      setConfirmRidePanel(false); 
-      // We no longer directly set setShowRideSharingWindow(true). 
-      // The socket event 'shared-ride-created' will handle this in homepage.tsx.
+      setConfirmRidePanel(false);
 
     } catch (err) {
       console.error("Error confirming ride:", err);

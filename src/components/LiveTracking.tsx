@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   MapContainer,
   Marker,
@@ -84,20 +84,16 @@ const LiveTracking: React.FC<Props> = ({ pickup, destination }) => {
   const [recenterRequested, setRecenterRequested] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Throttle live location update
-  const handleLocationUpdate = useCallback(
-    throttle((lat: number, lng: number) => {
-      setCurrentPosition({ lat, lng });
-    }, 3000),
-    []
-  );
-
   useEffect(() => {
     if (typeof window !== "undefined" && navigator.geolocation) {
+      const throttledUpdate = throttle((lat: number, lng: number) => {
+        setCurrentPosition({ lat, lng });
+      }, 3000);
+
       const watchId = navigator.geolocation.watchPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-          handleLocationUpdate(latitude, longitude);
+          throttledUpdate(latitude, longitude);
         },
         (err) => {
           console.error("Geolocation error:", err);
@@ -105,10 +101,13 @@ const LiveTracking: React.FC<Props> = ({ pickup, destination }) => {
         },
         { enableHighAccuracy: true }
       );
-      return () => navigator.geolocation.clearWatch(watchId);
+      return () => {
+        navigator.geolocation.clearWatch(watchId);
+        throttledUpdate.cancel();
+      };
     }
     setError("Geolocation not supported.");
-  }, [handleLocationUpdate]);
+  }, []);
 
   
   useEffect(() => {

@@ -1,23 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-
-// Define a type for our shared trip object for better type safety
-type SharedTrip = {
-  status: "OPEN" | "ASSIGNED" | "FULL" | "CLOSED";
-  seatsFilled: number;
-  capacity: number;
-  passengers: { name: string, passengerCount: number }[];
-  createdAt: string; // ISO string timestamp from the server
-};
+import { SharedTrip } from "@/types/rideSharing";
 
 type Props = {
   trip: SharedTrip | null;
   yourFare: number | null;
-  onCancel: () => void;
 };
 
-const RideSharingWindow: React.FC<Props> = ({ trip, yourFare, onCancel }) => {
+const RideSharingWindow: React.FC<Props> = ({ trip, yourFare }) => {
   const [timeLeft, setTimeLeft] = useState("10:00");
 
   useEffect(() => {
@@ -106,7 +97,9 @@ const RideSharingWindow: React.FC<Props> = ({ trip, yourFare, onCancel }) => {
           <h4 className="font-semibold text-gray-700 mb-2">Passengers in this ride:</h4>
           <ul className="list-disc list-inside text-gray-600">
             {trip.passengers.map((p, index) => (
-                <li key={index}>{p.name} ({p.passengerCount} {p.passengerCount > 1 ? 'seats' : 'seat'})</li>
+                <li key={index}>
+                  {p.name ?? `Passenger ${index + 1}`} ({p.passengerCount} {p.passengerCount > 1 ? 'seats' : 'seat'})
+                </li>
             ))}
           </ul>
       </div>
