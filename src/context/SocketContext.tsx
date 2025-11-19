@@ -32,7 +32,10 @@ const SocketProvider: React.FC<Props> = ({ children }) => {
         socket.emit("join", { userId, userType: "user" });
         console.log(`✅ Joined room for userId: ${userId}`);
       } else {
-        console.error("⚠️ User ID not found in localStorage");
+        // Only warn in development, not an error in production
+        if (process.env.NODE_ENV === 'development') {
+          console.warn("⚠️ User ID not found in localStorage - socket room join skipped");
+        }
       }
     });
 

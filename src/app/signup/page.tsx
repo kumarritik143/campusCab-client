@@ -79,6 +79,9 @@ const UserSignup = () => {
         const data = response.data;
         setUser(data.user);
         localStorage.setItem("token", data.token);
+        if (data.user?._id) {
+          localStorage.setItem("userId", data.user._id);
+        }
         router.push("/users/home");
       }
     } catch (err) {

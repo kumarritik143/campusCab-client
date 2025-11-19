@@ -25,12 +25,14 @@ const UserLogout: React.FC = () => {
       .then((response) => {
         if (response.status === 200) {
           localStorage.removeItem('token')
+          localStorage.removeItem('userId')
           router.push('/login')
         }
       })
       .catch((error) => {
         console.error('Logout error:', error)
         localStorage.removeItem('token')
+        localStorage.removeItem('userId')
         router.push('/login')
       })
   }, [router])

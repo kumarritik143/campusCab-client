@@ -100,7 +100,11 @@ const LiveTracking: React.FC<Props> = ({ pickup, destination }) => {
           throttledUpdate(latitude, longitude);
         },
         (err) => {
-          console.error("Geolocation error:", err);
+          // Only log to console in development, errors are handled gracefully
+          if (process.env.NODE_ENV === 'development') {
+            console.warn("Geolocation error:", err.message || err);
+          }
+          
           let errorMessage = "Unable to fetch current location.";
           
           // Provide specific error messages based on error code
